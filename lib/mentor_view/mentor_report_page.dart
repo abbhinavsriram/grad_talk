@@ -11,7 +11,18 @@ class ReportPage extends StatelessWidget {
         appBar: AppBar(
           title: Text("GraduTalk"),
         ),
-        body: Center(child: Text("Report"))
+        body: const Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Center(child: Text(""
+              "Please email gradtalk@gmail.com if you have any concerns or would like to report an incident. Please also provide your userID in your email",
+            style: TextStyle(
+                fontSize: 22,
+                color: Colors.white
+            ),
+            textAlign: TextAlign.center,
+          )
+          ),
+        )
     );
   }
 }

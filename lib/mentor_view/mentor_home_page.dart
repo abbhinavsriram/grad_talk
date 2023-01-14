@@ -1,34 +1,32 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grad_talk/mentor_view/mentor_widgets/mentor_widgets.dart';
 
-import '../database_services.dart';
+import '../theme.dart';
+import 'mentor_widgets/mentorNavBar.dart';
 
-dynamic profile;
-String? name = "James";
-String? role = "";
-int? connections = 0;
-String? email;
 
-class Mentor extends StatefulWidget {
+class Mentor extends StatelessWidget {
   const Mentor({Key? key}) : super(key: key);
 
   @override
-  State<Mentor> createState() => _MentorState();
-}
-
-class _MentorState extends State<Mentor> {
-
-  @override
   Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection("users");
     return Scaffold(
-      drawer: NavBar(),
-      appBar: AppBar(
-        title: Center(child: Text("GraduTalk")),
-      ),
-      body: Center(child: Text("Mentor Home"))
+        drawer: NavBar(),
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("GradTalk"),
+        ),
+        body: const Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Center(child: Text(""
+              "Welcome to GradTalk! This is a social networking application that connects you with a mentor of your choice for advice on college! Please use the menu on the top left corner to navigate through the app. Thank you!",
+            style: TextStyle(
+                fontSize: 22,
+                color: Colors.white
+            ),
+            textAlign: TextAlign.center,
+          )
+          ),
+        )
     );
   }
 }

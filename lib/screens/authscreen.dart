@@ -18,4 +18,6 @@ class _AuthPageState extends State<AuthPage> {
       ? LoginWidget(onClickedSignUp: toggle)
       : SignUpWidget(onClickedSignIn: toggle);
   void toggle() => setState(() => isLogin = !isLogin);
+
+
 }

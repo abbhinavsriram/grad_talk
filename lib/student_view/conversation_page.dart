@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:grad_talk/student_view/student_widgets/studentNavBar.dart';
+import 'package:grad_talk/database_services.dart';
+import 'package:grad_talk/student_view/pages.dart';
 import 'package:grad_talk/student_view/student_widgets/student_widgets.dart';
-import 'package:grad_talk/models/models.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:grad_talk/theme.dart';
+
 
 import '../database_services.dart';
 
@@ -13,7 +14,6 @@ import '../database_services.dart';
 
 
 class ConvScreen extends StatefulWidget {
-
   const ConvScreen({
     Key? key,
   }) : super(key: key);
@@ -23,12 +23,29 @@ class ConvScreen extends StatefulWidget {
 }
 
 class _ConvScreenState extends State<ConvScreen> {
-  final groupId = DatabaseService().getUserData2("users", "groupId", FirebaseAuth.instance.currentUser!.uid);
-  Stream<QuerySnapshot>? chats;
-  final messageController = TextEditingController();
+  Stream<QuerySnapshot>? allMessages;
+  final _messageController = TextEditingController();
   String senderId = FirebaseAuth.instance.currentUser!.uid;
-
-
+  @override
+  void initState() {
+    print("ConvScreen works");
+    getChats();
+    super.initState();
+  }
+  @override
+  void dispose(){
+    super.dispose();
+    _messageController.dispose();
+  }
+  getChats() async {
+    await DatabaseService().getAllMessages(context).then((val) {
+      setState(() {
+        print("getChats function works");
+        print(allMessages);
+        allMessages = val;
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,25 +53,37 @@ class _ConvScreenState extends State<ConvScreen> {
         centerTitle: true,
         elevation: 0,
         title: Text("Chats"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.report),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ReportPage()));
+            },
+          )
+        ],
       ),
+      drawer: StudentNavBar(),
+      //https://www.freecodecamp.org/news/build-a-chat-app-ui-with-flutter/
       body: Stack(
         children: <Widget>[
           // chat messages here
           chatMessages(),
+          const SizedBox(height: 100),
           Container(
             alignment: Alignment.bottomCenter,
             width: MediaQuery.of(context).size.width,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               width: MediaQuery.of(context).size.width,
-              color: Colors.grey[700],
+              color: AppColors.secondary,
               child: Row(children: [
                 Expanded(
                     child: TextFormField(
-                      controller: messageController,
+                      controller: _messageController,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        hintText: "Send a message...",
+                        hintText: "Type here",
                         hintStyle: TextStyle(color: Colors.white, fontSize: 16),
                         border: InputBorder.none,
                       ),
@@ -88,28 +117,10 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
 
-
-  getChats(String groupId) async{
-    return FirebaseFirestore.instance.collection("groupChat").doc(groupId)
-        .collection("messages")
-        .orderBy("time")
-        .snapshots();
-
-  }
-
-  getChats2(){
-    getChats(groupId).then((val){
-      setState(() {
-        chats = val;
-      });
-    });
-
-  }
-
   chatMessages() {//connect to groups
 
     return StreamBuilder(
-      stream: chats,
+      stream: allMessages,
       builder: (context, AsyncSnapshot snapshot) {
         return snapshot.hasData
             ? ListView.builder(
@@ -117,31 +128,30 @@ class _ConvScreenState extends State<ConvScreen> {
           itemBuilder: (context, index) {
             //create message tiles
             return MessageTile(
-                message: snapshot.data.docs[index]['message'],
+                message: snapshot.data.docs[index]['text'],
                 sender: snapshot.data.docs[index]['senderId'],
-                sentByMe: senderId ==
-                    snapshot.data.docs[index]['senderId']);
+                sentByMe: senderId == snapshot.data.docs[index]['senderId']
+            );
           },
         )
-            : Container();
+            : const Text("Start a conversation!");
       },
     );
   }
-  sendMessage() {
-    String receiver = DatabaseService().getUserData2("groups", "mentorId", groupId);
-    if (messageController.text.isNotEmpty) {
-      Map<String, dynamic> chatMessageMap = {
-        "groupId": groupId,
-        "text": messageController.text.trim(),
-        "sender": FirebaseAuth.instance.currentUser!.uid,
-        "receiver": receiver,
-        "time": DateTime.now().millisecondsSinceEpoch,
-      };
+  sendMessage() async {
+    String groupID = await DatabaseService().getGroupId(FirebaseAuth.instance.currentUser!.uid);
+    if (_messageController.text.isNotEmpty) {
 
-      FirebaseFirestore.instance.collection("groups").doc(groupId).collection("messages").add(chatMessageMap);
+      DatabaseService().sendNewMessage(groupID, _messageController.text.trim(), FirebaseAuth.instance.currentUser!.uid, DateTime.now());
       setState(() {
-        messageController.clear();
+        _messageController.clear();
       });
+    } else {
+      setState(() {
+        _messageController.clear();
+      });
+      return Utils.showSnackBar("You cannot send a blank text message");
+
     }
   }
 

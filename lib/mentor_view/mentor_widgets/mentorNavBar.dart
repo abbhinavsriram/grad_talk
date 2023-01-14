@@ -17,11 +17,11 @@ class NavBar extends StatelessWidget {
     Mentor(),
     ConvScreen(),
     MentorProfilePage(),
-    SettingsPage(),
     ReportPage(),
+    StudentInfoPage(),
   ];
 
-  void selectedItem(BuildContext context, int index) {
+  void pageRouter(BuildContext context, int index) {
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => pages[index]
     ));
@@ -36,79 +36,83 @@ class NavBar extends StatelessWidget {
         children: [
           const SizedBox(height: 50),
           const ListTile(
-            title: Center(child: Text("GradTalk", style: TextStyle(fontSize: 20)))
+              title: Center(child: Text("GradTalk", style: TextStyle(fontSize: 20)))
           ),
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.person),
               title: const Text("Profile"),
-              onTap: () => authentication()
-          ),
+              onTap: () {
+                pageRouter(context, 0);
+              }          ),
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.home),
               title: const Text("Home"),
-              onTap: () => selectedItem(context, 1)
+              onTap: () {
+                pageRouter(context, 1);
+              }
           ),
           const SizedBox(height: 16),
           ListTile(
             leading: const Icon(Icons.chat_bubble_outline_rounded),
             title: const Text("Chat"),
-            onTap: () => selectedItem(context, 2),
-            trailing: ClipOval(
-              child: Container(
-                color: AppColors.accent,
-                width: 20,
-                height: 20,
-                child: const Center(
-                  child: Text(
-                    "8",
-                    style: TextStyle(
-                      color: AppColors.textDark,
-                      fontSize: 12,
-                    )
-                  )
-                )
-              )
-            )
+            onTap: () => pageRouter(context, 2),
           ),
-
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.person),
-              title: const Text("Mentors Profile"),
-              onTap: () => selectedItem(context, 3)
-          ),
+              title: const Text("Your Profile"),
+              onTap: () {
+                pageRouter(context, 3);
+              }),
           const SizedBox(height: 16),
           ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-              onTap: () => selectedItem(context, 4)
-          ),
+              leading: const Icon(Icons.person),
+              title: const Text("Student's Profile"),
+              onTap: () {
+                pageRouter(context, 5);
+              }),
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.report),
-              title: const Text("Report Mentor"),
-              onTap: () => selectedItem(context, 5)
+              title: const Text("Report Parent"),
+              onTap: () {
+                pageRouter(context, 4);
+              }
           ),
           const SizedBox(height: 16),
           ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
-              onTap: () => FirebaseAuth.instance.signOut(),
+            leading: const Icon(Icons.logout),
+            title: const Text("Logout"),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) =>
+              const AuthPage()));
+            },
+          ),
+          const SizedBox(height: 30),
+          GestureDetector(
+            onTap: () => DatabaseService().endConversation('mentor'),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  borderRadius: BorderRadius.circular(10)
+              ),
+              child: const Center(
+                child: Text("End Conversation", style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15
+                ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-
-  void authentication(){
-    if (FirebaseAuth.instance.currentUser != null) {
-      print(FirebaseAuth.instance.currentUser?.uid);
-    }
-    else{
-      print("yello");
-    }
-  }
 }

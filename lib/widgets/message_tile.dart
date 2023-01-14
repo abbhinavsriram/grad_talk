@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 class MessageTile extends StatefulWidget {
   final String message;
   final String sender;
@@ -45,8 +47,8 @@ class _MessageTileState extends State<MessageTile> {
               bottomRight: Radius.circular(20),
             ),
             color: widget.sentByMe
-                ? Theme.of(context).primaryColor
-                : Colors.grey[700]),
+                ? AppColors.accent
+                : AppColors.secondary),
         child:
             Text(widget.message,
                 textAlign: TextAlign.start,

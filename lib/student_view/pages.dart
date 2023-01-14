@@ -6,3 +6,4 @@ export 'package:grad_talk/student_view/report_page.dart';
 export 'package:grad_talk/student_view/login_page.dart';
 export 'package:grad_talk/student_view/home_page.dart';
 export 'package:grad_talk/student_view/conversation_page.dart';
+export 'package:grad_talk/student_view/search_profile.dart';

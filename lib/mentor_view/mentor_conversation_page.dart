@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:grad_talk/models/models.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:grad_talk/database_services.dart';
+import 'package:grad_talk/mentor_view/mentor_report_page.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:grad_talk/theme.dart';
-import 'package:grad_talk/mentor_view/mentor_widgets/mentor_widgets.dart';
+
+import 'mentor_widgets/mentorNavBar.dart';
 
 
 class ConvScreen extends StatefulWidget {
@@ -18,18 +21,138 @@ class ConvScreen extends StatefulWidget {
 }
 
 class _ConvScreenState extends State<ConvScreen> {
-  Stream<QuerySnapshot>? chats;
-
+  Stream<QuerySnapshot>? allMessages;
+  final _messageController = TextEditingController();
+  String senderId = FirebaseAuth.instance.currentUser!.uid;
   @override
-
+  void initState() {
+    print("ConvScreen works");
+    getChats();
+    super.initState();
+  }
+  @override
+  void dispose(){
+    super.dispose();
+    _messageController.dispose();
+  }
+  getChats() async {
+    await DatabaseService().getAllMessages(context).then((val) {
+      setState(() {
+        print("getChats function works");
+        print(allMessages);
+        allMessages = val;
+      });
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavBar(),
       appBar: AppBar(
-        title: Text("GradTalk"),
+        centerTitle: true,
+        elevation: 0,
+        title: Text("Chats"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.report),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const ReportPage()));
+            },
+          )
+        ],
+      ),
+      drawer: NavBar(),
+      //https://www.freecodecamp.org/news/build-a-chat-app-ui-with-flutter/
+      body: Stack(
+        children: <Widget>[
+          // chat messages here
+          chatMessages(),
+          const SizedBox(height: 100),
+          Container(
+            alignment: Alignment.bottomCenter,
+            width: MediaQuery.of(context).size.width,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              width: MediaQuery.of(context).size.width,
+              color: AppColors.secondary,
+              child: Row(children: [
+                Expanded(
+                    child: TextFormField(
+                      controller: _messageController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: "Type here",
+                        hintStyle: TextStyle(color: Colors.white, fontSize: 16),
+                        border: InputBorder.none,
+                      ),
+                    )),
+                const SizedBox(
+                  width: 12,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    sendMessage();
+                  },
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Center(
+                        child: Icon(
+                          Icons.send,
+                          color: Colors.white,
+                        )),
+                  ),
+                )
+              ]),
+            ),
+          )
+        ],
       ),
     );
   }
+
+  chatMessages() {//connect to groups
+
+    return StreamBuilder(
+      stream: allMessages,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+          itemCount: snapshot.data.docs.length,
+          itemBuilder: (context, index) {
+            //create message tiles
+            return MessageTile(
+                message: snapshot.data.docs[index]['text'],
+                sender: snapshot.data.docs[index]['senderId'],
+                sentByMe: senderId == snapshot.data.docs[index]['senderId']
+            );
+          },
+        )
+            : const Text("Start a conversation!");
+      },
+    );
+  }
+  sendMessage() async {
+    String groupID = await DatabaseService().getGroupId(FirebaseAuth.instance.currentUser!.uid);
+    if (_messageController.text.isNotEmpty) {
+
+      DatabaseService().sendNewMessage(groupID, _messageController.text.trim(), FirebaseAuth.instance.currentUser!.uid, DateTime.now());
+      setState(() {
+        _messageController.clear();
+      });
+    } else {
+      setState(() {
+        _messageController.clear();
+      });
+      return Utils.showSnackBar("You cannot send a blank text message");
+
+    }
+  }
+
 }
 
 

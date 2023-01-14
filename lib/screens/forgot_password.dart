@@ -57,6 +57,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: Size.fromHeight(50),
+                backgroundColor: AppColors.accent,
               ),
               icon: Icon(Icons.email_outlined),
               label: Text(

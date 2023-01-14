@@ -17,14 +17,15 @@ import 'package:grad_talk/widgets/widgets.dart';
 import 'firebase_options.dart';
 
 
-Future main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp( const MyApp());
 }
-final navigatorKey = GlobalKey<NavigatorState>();
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -32,40 +33,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return MaterialApp(
-        navigatorKey: navigatorKey,
         scaffoldMessengerKey: Utils.messengerKey,
         debugShowCheckedModeBanner: false,
         darkTheme: AppTheme.dark(),
         themeMode: ThemeMode.dark,
-        home: MainPage(),
+        home: const AuthPage(),
     );
   }
 
 
 }
 
-
-class MainPage extends StatelessWidget {
-
-
-  @override
-  Widget build(BuildContext context) => AuthPage();
-
-
-  dynamic profileFinder(String uid) async {
-    dynamic profile = DatabaseService().getUserData(
-        FirebaseAuth.instance.currentUser!.uid);
-    return profile;
-  }
-
-  Future<bool> isUserLogged() async {
-    if(FirebaseAuth.instance.currentUser?.uid == null){
-      return false;
-    } else {
-      return true;
-    }
-  }
-}
 
 
 

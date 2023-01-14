@@ -1,4 +1,4 @@
-import 'dart:async';
+/*import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:grad_talk/screens/screens.dart';
@@ -121,5 +121,5 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
 
 }
-
+*/
 
