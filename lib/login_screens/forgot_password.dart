@@ -13,8 +13,10 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
+  //Sends email to user if they have forgotten their password
+  GlobalKey<FormState> _forgotKey = GlobalKey<FormState>();
+  TextEditingController emailController = TextEditingController();
+  bool _loading = false;
 
   @override
   void dispose(){
@@ -30,7 +32,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     body: Padding(
       padding: EdgeInsets.all(16),
       child: Form(
-        key: formKey,
+        key: _forgotKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -44,7 +46,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             SizedBox(height: 20),
             TextFormField(
               controller: emailController,
-              cursorColor: AppColors.cardDark,
+              cursorColor: GradTalkColors.cardDark,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(labelText: 'Email'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -57,7 +59,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: Size.fromHeight(50),
-                backgroundColor: AppColors.accent,
+                backgroundColor: GradTalkColors.primary,
               ),
               icon: Icon(Icons.email_outlined),
               label: Text(
@@ -73,22 +75,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   );
 
   Future resetPassword() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-      
-    );
+      setState(() {
+        _loading = true;
+      });
+
 
     try {
+      //sends email, stops loading screen
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());
       Utils.showSnackBar('Reset email sent');
+      setState(() {
+        _loading = false;
+      });
     } on FirebaseAuthException catch (e) {
       print(e);
-      Utils.showSnackBar(e.message);
-      Navigator.of(context).pop();
-      // TODO
+      //returns error
+      return Utils.showSnackBar(e.message);
     }
   }
 

@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grad_talk/database_services.dart';
 import 'package:grad_talk/mentor_view/mentor_widgets/mentor_widgets.dart';
-import 'package:grad_talk/screens/screens.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:grad_talk/theme.dart';
 import 'package:grad_talk/mentor_view/mentor_pages.dart';
@@ -19,11 +16,11 @@ class StudentInfoPage extends StatefulWidget {
 class _StudentInfoPageState extends State<StudentInfoPage> {
 
 
-//Make changes to profile screen
+  //Display student's profile to mentor
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-        future: DatabaseService().getOtherID('parent'),
+        future: DatabaseService().getOtherID('Parent'),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             Navigator.of(context).pop(MaterialPageRoute(
@@ -142,17 +139,17 @@ class _StudentInfoPageState extends State<StudentInfoPage> {
     );
   }
 
-
+  //Heading format
   Widget fieldText(String field){
     return Text(
       field,
       style: const TextStyle(
         fontSize: 17,
-        color: AppColors.accent,
+        color: GradTalkColors.primary,
       ),
     );
   }
-
+  //Body text format
   Widget valueText(String value){
     return Text(
       value,

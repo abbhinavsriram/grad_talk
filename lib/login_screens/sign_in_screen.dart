@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:grad_talk/login_services.dart';
 import 'package:grad_talk/mentor_view/mentor_home_page.dart';
 import 'package:grad_talk/student_view/home_page.dart';
-import 'package:grad_talk/student_view/login_page.dart';
 import 'package:grad_talk/theme.dart';
 import'package:firebase_auth/firebase_auth.dart';
-import 'package:grad_talk/screens/screens.dart';
+import 'package:grad_talk/login_screens/screens.dart';
 import '../database_services.dart';
-import '../main.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -19,14 +17,21 @@ class LoginWidget extends StatefulWidget {
   @override
   State<LoginWidget> createState() => _LoginWidgetState();
 }
+  /*
+    Credit for UI elements:
+    Developers, Stream. “Build a Flutter Chat App: 01 - Design/UI.” YouTube, YouTube, 20 Aug. 2021, 
+      https://www.youtube.com/watch?v=vgqBc7jni8c. 
 
+    Credit for firebase connection:
+    Flutter, Backslash. “Chat App in Flutter and Firebase | Tutorial for Beginners to Advance | Android &amp; IOS (Latest).” YouTube, YouTube, 26 July 2022, 
+      https://www.youtube.com/watch?v=Qwk5oIAkgnY. 
+
+  */
 class _LoginWidgetState extends State<LoginWidget> {
 
-  final formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _emailRegex = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+  GlobalKey<FormState> _signInKey = GlobalKey<FormState>();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   bool _loading = false;
   LoginServices loginService = LoginServices();
 
@@ -42,6 +47,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text(
             "GradTalk",
@@ -53,14 +59,14 @@ class _LoginWidgetState extends State<LoginWidget> {
       body: _loading
             ? const Center(
                 child: CircularProgressIndicator(
-                  color: AppColors.accent,
+                  color: GradTalkColors.primary,
                 )
       )
       : SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Form(
-              key: formKey,
+              key: _signInKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -83,7 +89,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                               borderRadius: BorderRadius.circular(12)
                           ),
                           focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: AppColors.accent),
+                              borderSide: BorderSide(color: GradTalkColors.primary),
                               borderRadius: BorderRadius.circular(12)
                           ),
                           hintText: "Email"
@@ -119,11 +125,11 @@ class _LoginWidgetState extends State<LoginWidget> {
                               borderRadius: BorderRadius.circular(12)
                           ),
                           focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: AppColors.accent),
+                              borderSide: BorderSide(color: GradTalkColors.primary),
                               borderRadius: BorderRadius.circular(12)
                           ),
                           hintText: "Password",
-                          focusColor: AppColors.secondary
+                          focusColor: GradTalkColors.secondary
                       ),
                       validator: (value) {
                         RegExp regex = new RegExp(r'^.{6,}$');
@@ -151,7 +157,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                       child: Container(
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                            color: AppColors.accent,
+                            color: GradTalkColors.primary,
                             borderRadius: BorderRadius.circular(10)
                         ),
                         child: const Center(
@@ -172,7 +178,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         'Forgot Password',
                         style: TextStyle(
                           decoration: TextDecoration.underline,
-                          color: AppColors.textLight,
+                          color: GradTalkColors.lightFont,
                           fontSize: 20,
                         ),
                       ),
@@ -193,7 +199,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                             text: 'Sign Up',
                             style: const TextStyle(
                                 decoration: TextDecoration.underline,
-                                color: AppColors.accent,
+                                color: GradTalkColors.primary,
                                 fontWeight: FontWeight.bold
                             ),
                           )
@@ -210,7 +216,8 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 
   signIn() async {
-    if (formKey.currentState!.validate()) {
+    //Checks if entered info is valid and then sends user to page depending on role
+    if (_signInKey.currentState!.validate()) {
       setState(() {
         _loading = true;
       });

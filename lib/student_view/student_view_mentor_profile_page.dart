@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
 import 'package:grad_talk/database_services.dart';
 import 'package:grad_talk/student_view/student_widgets/student_widgets.dart';
-import 'package:grad_talk/screens/screens.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:grad_talk/student_view/pages.dart';
 import 'package:grad_talk/theme.dart';
@@ -19,11 +17,11 @@ class MentorProfilePage extends StatefulWidget {
 class _MentorProfilePageState extends State<MentorProfilePage> {
 
 
-//Make changes to profile screen
+//Displays profile of student's mentor
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-        future: DatabaseService().getOtherID('mentor'),
+        future: DatabaseService().getOtherID('Mentor'),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             Navigator.of(context).pop(MaterialPageRoute(
@@ -142,17 +140,17 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
     );
   }
 
-
+  //header format
   Widget fieldText(String field){
     return Text(
       field,
       style: const TextStyle(
         fontSize: 17,
-        color: AppColors.accent,
+        color: GradTalkColors.primary,
       ),
     );
   }
-
+  //body text format
   Widget valueText(String value){
     return Text(
       value,
@@ -164,27 +162,3 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
 
 }
 
-/*
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:grad_talk/database_services.dart';
-import 'package:grad_talk/student_view/student_widgets/student_widgets.dart';
-import 'package:grad_talk/screens/screens.dart';
-import 'package:grad_talk/widgets/widgets.dart';
-import 'package:grad_talk/student_view/pages.dart';
-import 'package:grad_talk/theme.dart';
-
-class MentorProfilePage extends StatefulWidget {
-  const MentorProfilePage({Key? key}) : super(key: key);
-
-  @override
-  State<MentorProfilePage> createState() => _MentorProfilePageState();
-}
-
-class _MentorProfilePageState extends State<MentorProfilePage> {
-
-
-}
- */

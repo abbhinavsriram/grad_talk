@@ -1,51 +1,28 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grad_talk/student_view/pages.dart';
-import 'package:grad_talk/student_view/review_page.dart';
-import 'package:grad_talk/student_view/student_widgets/studentNavBar.dart';
+import 'package:grad_talk/mentor_view/mentor_widgets/mentorNavBar.dart';
+import 'package:grad_talk/mentor_view/mentor_pages.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import '../database_services.dart';
 import '../theme.dart';
 
-class SearchProfile extends StatelessWidget {
-  final String mentorID;
-  final String career;
-  final String college;
-  final String description;
-  final String extracurriculars;
-  final String major;
-  final String name;
-  final String scores;
-  final String transcript;
-  final String year;
-  final double rating;
-  final double numReviews;
+class RequestProfile extends StatelessWidget {
+  //Displays profile of student who requested the mentor
+  final Map<String, dynamic> data;
 
-  const SearchProfile({
+  const RequestProfile({
     Key? key,
-    required this.mentorID,
-    required this.career,
-    required this.college,
-    required this.description,
-    required this.extracurriculars,
-    required this.major,
-    required this.name,
-    required this.scores,
-    required this.transcript,
-    required this.year,
-    required this.rating,
-    required this.numReviews,
+    required this.data
   }) : super(key: key);
 
   @override
-  //Displays profile of mentor who user clicked on in search
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("$name's profile"),
+        title: Text("${data['name']}'s profile"),
         centerTitle: true,
       ),
-      drawer: StudentNavBar(),
+      drawer: NavBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -58,7 +35,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(name),
+                child: valueText(data['name']),
               ),
               const SizedBox(height: 25),
               Padding(
@@ -67,7 +44,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(college),
+                child: valueText(data['college']),
               ),
 
               const SizedBox(height: 25),
@@ -77,16 +54,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(major),
-              ),
-              const SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: fieldText("Rating"),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText("${rating.toStringAsFixed(1)} (${numReviews.round().toString()})"),
+                child: valueText(data['major']),
               ),
               const SizedBox(height: 25),
               Padding(
@@ -95,7 +63,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(year),
+                child: valueText(data['year']),
               ),
 
               const SizedBox(height: 25),
@@ -105,7 +73,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(career),
+                child: valueText(data['career']),
               ),
               const SizedBox(height: 25),
               Padding(
@@ -114,7 +82,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(description),
+                child: valueText(data['description']),
               ),
               const SizedBox(height: 25),
               Padding(
@@ -123,7 +91,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(extracurriculars),
+                child: valueText(data['extracurriculars']),
               ),
 
               const SizedBox(height: 25),
@@ -133,7 +101,7 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(scores),
+                child: valueText(data['scores']),
               ),
               const SizedBox(height: 25),
               Padding(
@@ -142,67 +110,17 @@ class SearchProfile extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: valueText(transcript),
+                child: valueText(data['transcript']),
               ),
               const SizedBox(height: 50),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ViewReviewPage(average: rating, numRatings: numReviews, mentorID: mentorID)
-                    ));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        color: GradTalkColors.primary,
-                        borderRadius: BorderRadius.circular(10)
-                    ),
-                    child: const Center(
-                      child: Text("View reviews", style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15
-                      ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: GestureDetector(
-                  onTap: () {
-                    checkReview(context);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        color: GradTalkColors.primary,
-                        borderRadius: BorderRadius.circular(10)
-                    ),
-                    child: const Center(
-                      child: Text("Write a review", style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15
-                      ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
 
-              const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: GestureDetector(
                   onTap: () {
-                    DatabaseService().sendRequest(mentorID, FirebaseAuth.instance.currentUser!.uid);
+                    DatabaseService().createGroup(FirebaseAuth.instance.currentUser!.uid, data['uid']);
                     Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => const Student()
+                        builder: (context) => const Mentor()
                     ));
                   },
                   child: Container(
@@ -223,13 +141,14 @@ class SearchProfile extends StatelessWidget {
                 ),
               ),
 
+
               const SizedBox(height: 25),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop(MaterialPageRoute(
-                        builder: (context) => const SearchPage()
+                        builder: (context) => const ViewRequestPage()
                     ));
                   },
                   child: Container(
@@ -239,7 +158,7 @@ class SearchProfile extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10)
                     ),
                     child: const Center(
-                      child: Text("Back to search", style: TextStyle(
+                      child: Text("Back to requests page", style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 15
@@ -249,6 +168,35 @@ class SearchProfile extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 25),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: GestureDetector(
+                  onTap: () {
+                    DatabaseService().rejectRequest(data['uid']);
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const ViewRequestPage()
+                    ));
+                    Utils.showSnackBar("You rejected this ${data['name']}'s request");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                        color: GradTalkColors.primary,
+                        borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: const Center(
+                      child: Text("Reject", style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15
+                      ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),              
             ],
           ),
         ),
@@ -256,8 +204,7 @@ class SearchProfile extends StatelessWidget {
 
     );
   }
-  //header format
-
+  //heading format
   Widget fieldText(String field){
     return Text(
       field,
@@ -268,7 +215,6 @@ class SearchProfile extends StatelessWidget {
     );
   }
   //body text format
-
   Widget valueText(String value){
     return Text(
       value,
@@ -277,18 +223,4 @@ class SearchProfile extends StatelessWidget {
       ),
     );
   }
-  //checks if user can write a review for the mentor. If not, outputs error
-  checkReview(BuildContext context) async {
-    
-    bool canReview = await DatabaseService().canReview(FirebaseAuth.instance.currentUser!.uid, mentorID);
-    print("We can review: ${canReview}");
-    if(canReview == true){
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => ReviewPage(mentorID: mentorID)
-      ));
-    } else {
-      Utils.showSnackBar("Cannot review this mentor. You may have written a review already or are yet to connect to connect with this person");
-    }
-  }
 }
-

@@ -1,27 +1,28 @@
 import 'package:grad_talk/database_services.dart';
-import 'package:grad_talk/screens/screens.dart';
-import 'package:faker/faker.dart';
+import 'package:grad_talk/login_screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:grad_talk/theme.dart';
 import "package:grad_talk/mentor_view/mentor_pages.dart";
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../student_view/home_page.dart';
 
 
 class NavBar extends StatelessWidget {
   NavBar({Key? key}) : super(key: key);
   final padding = const EdgeInsets.symmetric(horizontal: 20);
+  //List of all pages that sidebar menu navigates to
   final pages = const [
     MentorProfilePage(),
     Mentor(),
     ConvScreen(),
     MentorProfilePage(),
-    ReportPage(),
+    MentorReportPage(),
     StudentInfoPage(),
+    ViewRequestPage(),
   ];
 
   void pageRouter(BuildContext context, int index) {
+    //sends user to specified page
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => pages[index]
     ));
@@ -29,6 +30,7 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //front-end appearance of sidebar menu
     return Drawer(
 
       child: ListView(
@@ -55,17 +57,18 @@ class NavBar extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ListTile(
+              leading: const Icon(Icons.queue),
+              title: const Text("View requests"),
+              onTap: () {
+                pageRouter(context, 6);
+              }
+          ),          
+          const SizedBox(height: 16),
+          ListTile(
             leading: const Icon(Icons.chat_bubble_outline_rounded),
             title: const Text("Chat"),
             onTap: () => pageRouter(context, 2),
           ),
-          const SizedBox(height: 16),
-          ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text("Your Profile"),
-              onTap: () {
-                pageRouter(context, 3);
-              }),
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.person),
@@ -93,11 +96,11 @@ class NavBar extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           GestureDetector(
-            onTap: () => DatabaseService().endConversation('mentor'),
+            onTap: () => DatabaseService().endConversation('Parent'),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                  color: AppColors.accent,
+                  color: GradTalkColors.primary,
                   borderRadius: BorderRadius.circular(10)
               ),
               child: const Center(

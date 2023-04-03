@@ -6,13 +6,21 @@ import 'package:grad_talk/student_view/student_widgets/student_widgets.dart';
 import 'package:grad_talk/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:grad_talk/theme.dart';
+import 'package:profanity_filter/profanity_filter.dart';
 
 
 import '../database_services.dart';
 
 
+/*
+  Credit for connection to firebase:
+    Flutter, Backslash. “Chat App in Flutter and Firebase | Tutorial for Beginners to Advance | Android &amp; IOS (Latest).” YouTube, YouTube, 26 July 2022, 
+      https://www.youtube.com/watch?v=Qwk5oIAkgnY. 
 
-
+  Credit for UI: 
+  Krissanawat. “How to Build a Chat App UI with Flutter and Dart.” FreeCodeCamp.org, FreeCodeCamp.org, 28 Apr. 2021, 
+    https://www.freecodecamp.org/news/build-a-chat-app-ui-with-flutter/. 
+*/
 class ConvScreen extends StatefulWidget {
   const ConvScreen({
     Key? key,
@@ -64,19 +72,19 @@ class _ConvScreenState extends State<ConvScreen> {
         ],
       ),
       drawer: StudentNavBar(),
-      //https://www.freecodecamp.org/news/build-a-chat-app-ui-with-flutter/
-      body: Stack(
-        children: <Widget>[
+      body: Column(
+        children: [
           // chat messages here
-          chatMessages(),
-          const SizedBox(height: 100),
+          Expanded(
+            child: chatMessages(),
+          ),
           Container(
             alignment: Alignment.bottomCenter,
             width: MediaQuery.of(context).size.width,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               width: MediaQuery.of(context).size.width,
-              color: AppColors.secondary,
+              color: GradTalkColors.secondary,
               child: Row(children: [
                 Expanded(
                     child: TextFormField(
@@ -117,8 +125,8 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
 
-  chatMessages() {//connect to groups
-
+  chatMessages() {
+    //Contains array of all messages sent and received
     return StreamBuilder(
       stream: allMessages,
       builder: (context, AsyncSnapshot snapshot) {
@@ -139,13 +147,26 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
   sendMessage() async {
+    //Uploads message to database
     String groupID = await DatabaseService().getGroupId(FirebaseAuth.instance.currentUser!.uid);
     if (_messageController.text.isNotEmpty) {
+      final filter = ProfanityFilter();
+      bool isOffensive = filter.hasProfanity(_messageController.text.trim());
 
-      DatabaseService().sendNewMessage(groupID, _messageController.text.trim(), FirebaseAuth.instance.currentUser!.uid, DateTime.now());
-      setState(() {
-        _messageController.clear();
-      });
+      if (!isOffensive) {
+        DatabaseService().sendNewMessage(
+          groupID,
+          _messageController.text.trim(), 
+          FirebaseAuth.instance.currentUser!.uid, 
+          DateTime.now(),
+          "Mentor"
+          );
+        setState(() {
+          _messageController.clear();
+        });
+      } else{
+        return Utils.showSnackBar("That's offensive!");
+      }
     } else {
       setState(() {
         _messageController.clear();
@@ -157,196 +178,3 @@ class _ConvScreenState extends State<ConvScreen> {
 
 
 }
-
-
-
-
-
-
-
-/*
-class _MessageTile extends StatelessWidget {
-  const _MessageTile({Key? key, required this.message, required this.messageDate}) : super(key: key);
-
-  final String message;
-  final String messageDate;
-
-  static const _borderRadius = 26.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.accent,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(_borderRadius),
-                    topRight: Radius.circular(_borderRadius),
-                    bottomRight: Radius.circular(_borderRadius),
-                    bottomLeft: Radius.circular(_borderRadius)
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                child: Text(message),
-              ),
-
-            ),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                child: Text(
-                  messageDate,
-                  style: const TextStyle(
-                    color: AppColors.textFaded,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-class _MessageOwnTile extends StatelessWidget {
-  const _MessageOwnTile({Key? key, required this.message, required this.messageDate}) : super(key: key);
-
-  final String message;
-  final String messageDate;
-
-  static const _borderRadius = 26.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-              color: AppColors.secondary,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(_borderRadius),
-                    topRight: Radius.circular(_borderRadius),
-                    bottomRight: Radius.circular(_borderRadius),
-                    bottomLeft: Radius.circular(_borderRadius)
-                  ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                child: Text(message),
-              ),
-
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: Text(
-                messageDate,
-                style: const TextStyle(
-                  color: AppColors.textFaded,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-class _DemoMessage extends StatelessWidget {
-  const _DemoMessage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: ListView(
-          children: const [
-            _MessageTile(message: "Hello How's it going", messageDate: "12:00pm"),
-            _MessageTile(message: "Hello", messageDate: "1:00pm"),
-            _MessageTile(message: "Nothing much", messageDate: "2:00pm"),
-            _MessageOwnTile(message: "Ok", messageDate: "9:00pm"),
-            _MessageOwnTile(message: "Sorry for the late response!", messageDate: "9:00pm"),
-            _MessageTile(message: "Sorry for the late response!", messageDate: "9:00pm"),
-            _MessageOwnTile(message: "Sorry for the late response!", messageDate: "9:00pm"),
-          ],
-
-        )
-    );
-  }
-}
-
-class _MessagingBar extends StatelessWidget {
-  const _MessagingBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: true,
-      top: false,
-      child: Row(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              border: Border(
-                right: BorderSide(
-                  width: 2,
-                  color: Colors.grey
-                )
-              )
-            ),
-          ),
-          const Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: 16),
-              child: TextField(
-                style: TextStyle(
-                  fontSize: 14,
-
-                ),
-                decoration: InputDecoration(
-                  hintText: "Send a message",
-                  border: InputBorder.none
-                )
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 12,
-              right: 24,
-              bottom: 12,
-              top: 12,
-            ),
-            child: ActionButton(color: AppColors.accent, icon: Icons.send, onPressed: (){},)
-
-          )
-
-
-        ]
-      )
-    );
-  }
-}
-
-
-*/

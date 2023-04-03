@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
-
+/*Credit for message bubbles:
+Flutter, Backslash. “Chat App in Flutter and Firebase | Tutorial for Beginners to Advance | Android &amp; IOS (Latest).” YouTube, YouTube, 26 July 2022, 
+  https://www.youtube.com/watch?v=Qwk5oIAkgnY. 
+*/
 class MessageTile extends StatefulWidget {
   final String message;
   final String sender;
@@ -20,6 +23,7 @@ class MessageTile extends StatefulWidget {
 
 class _MessageTileState extends State<MessageTile> {
   @override
+  //Color and placement of bubbles changes depending on who sent it
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
@@ -35,20 +39,10 @@ class _MessageTileState extends State<MessageTile> {
         padding:
         const EdgeInsets.only(top: 17, bottom: 17, left: 20, right: 20),
         decoration: BoxDecoration(
-            borderRadius: widget.sentByMe
-                ? const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-              bottomLeft: Radius.circular(20),
-            )
-                : const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
             color: widget.sentByMe
-                ? AppColors.accent
-                : AppColors.secondary),
+                ? GradTalkColors.primary
+                : GradTalkColors.secondary
+            ),
         child:
             Text(widget.message,
                 textAlign: TextAlign.start,

@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grad_talk/database_services.dart';
 import 'package:grad_talk/student_view/pages.dart';
 import 'package:grad_talk/student_view/student_widgets/student_widgets.dart';
 
@@ -87,8 +85,11 @@ class _SearchPageState extends State<SearchPage> {
                         var data = snapshots.data!.docs[index].data() as Map<
                             String,
                             dynamic>;
-                          return ListTile(
+                          return (data['numRatings'] == 0)
+                          ?ListTile(
                             leading: FloatingActionButton(
+                              backgroundColor: GradTalkColors.primary,
+                              heroTag: null,
                               child: const Text("View"),
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
@@ -96,12 +97,12 @@ class _SearchPageState extends State<SearchPage> {
                                         college: data['college'], description: data['description'],
                                         extracurriculars: data['extracurriculars'], major: data['major'],
                                         name: data['name'], scores: data['scores'], transcript: data['transcript'],
-                                        year: data['year'])
+                                        year: data['year'], rating: data['average'], numReviews: data['numRatings'])
                                 ));
                               },
                             ),
                             title: Text(
-                              data['name'],
+                              "${data['name']}: unrated",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -124,14 +125,56 @@ class _SearchPageState extends State<SearchPage> {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textFaded
+                                  color: GradTalkColors.fadedText
+                              ),
+                            ),
+                          )
+                          :ListTile(
+                            leading: FloatingActionButton(
+                              backgroundColor: GradTalkColors.primary,
+                              heroTag: null,
+                              child: const Text("View"),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => SearchProfile(mentorID: data['uid'], career: data['career'],
+                                        college: data['college'], description: data['description'],
+                                        extracurriculars: data['extracurriculars'], major: data['major'],
+                                        name: data['name'], scores: data['scores'], transcript: data['transcript'],
+                                        year: data['year'], rating: data['average'], numReviews: data['numRatings'])
+                                ));
+                              },
+                            ),
+                            title: Text(
+                              "${data['name']}: ${data['average']} / 5 (${data['numRatings']} ratings)",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                            trailing: Text(
+                              data['college'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                            subtitle: Text(
+                              data['major'],
+                              maxLines: 7,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  color: GradTalkColors.fadedText
                               ),
                             ),
                           );
                       }
                   );
                 },
-
               ),
             ),
           ],
@@ -144,199 +187,3 @@ class _SearchPageState extends State<SearchPage> {
 
 
 }
-
-
-/*  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        drawer: StudentNavBar(),
-        appBar: AppBar(
-          title: Card(
-            child: TextField(
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search), hintText: 'Search a major or university'),
-                onChanged: (val) {
-                  setState((){
-                    name = val;
-                  });
-                }
-              ),
-            ),
-          ),
-      body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('users')
-              .where('role', isEqualTo: 'Mentor').snapshots(),
-          builder: (context, snapshots){
-            return (snapshots.connectionState == ConnectionState.waiting)
-                ?Center(child: CircularProgressIndicator())
-                :ListView.builder(
-                itemBuilder: (context, index){
-                  var data = snapshots.data!.docs[index].data() as Map<String, dynamic>;
-                  if(name.isEmpty){
-                    return ListTile(
-                      leading: FloatingActionButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          DatabaseService().createGroup(data['uid'], FirebaseAuth.instance.currentUser!.uid);
-
-                        },
-                      ),
-                      title: Text(
-                        data['name'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      trailing: Text(
-                        data['college'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      subtitle: Text(
-                        data['description'],
-                        maxLines: 7,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textFaded
-                        ),
-                      ),
-                    );
-                  }
-                  else if(data['major'].toString().startsWith(name.toLowerCase())){
-                    return ListTile(
-                      leading: FloatingActionButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          DatabaseService().createGroup(data['uid'], FirebaseAuth.instance.currentUser!.uid);
-
-                        },
-                      ),
-                      title: Text(
-                        data['name'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      trailing: Text(
-                        data['college'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      subtitle: Text(
-                        data['description'],
-                        maxLines: 7,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                            color: AppColors.textFaded
-
-                        ),
-                      ),
-
-                    );
-                  }
-                  else if(data['college'].toString().startsWith(name.toLowerCase())){
-                    return ListTile(
-                      leading: FloatingActionButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          DatabaseService().createGroup(data['uid'], FirebaseAuth.instance.currentUser!.uid);
-
-                        },
-                      ),
-                      title: Text(
-                        data['name'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      trailing: Text(
-                        data['college'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      subtitle: Text(
-                        data['major'],
-                        maxLines: 7,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textFaded
-
-                        ),
-                      ),
-
-                    );
-                  }
-                  else if(data['name'].toString().startsWith(name.toLowerCase())){
-                    return ListTile(
-                      leading: FloatingActionButton(
-                        child: Text("Add"),
-                        onPressed: () {
-                          DatabaseService().createGroup(data['uid'], FirebaseAuth.instance.currentUser!.uid);
-
-                        },
-                      ),
-                      title: Text(
-                        data['name'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      trailing: Text(
-                        data['college'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      subtitle: Text(
-                        data['description'],
-                        maxLines: 7,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textFaded
-
-                        ),
-                      ),
-
-                    );
-                  }
-                  return Text("No search results");
-                }
-            );
-          },
-
-      )
-
-
-    );
-*/

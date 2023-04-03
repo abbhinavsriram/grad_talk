@@ -1,15 +1,14 @@
-import 'package:grad_talk/screens/screens.dart';
-import 'package:flutter/gestures.dart';
+import 'package:grad_talk/login_screens/screens.dart';
 import 'package:flutter/material.dart';
-import 'package:grad_talk/widgets/widgets.dart';
-
+//Allows user to toggle between login and sign up screens
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
+
 
   @override
   State<AuthPage> createState() => _AuthPageState();
 }
-
+//Displays the correct login screen
 class _AuthPageState extends State<AuthPage> {
   bool isLogin = true;
 

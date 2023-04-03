@@ -2,8 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:grad_talk/login_services.dart';
-import 'package:grad_talk/screens/screens.dart';
+import 'package:grad_talk/login_screens/screens.dart';
 import '../mentor_view/mentor_pages.dart';
+import '../models/models.dart';
 import '../student_view/pages.dart';
 import '../theme.dart';
 import '../widgets/widgets.dart';
@@ -18,33 +19,44 @@ class SignUpWidget extends StatefulWidget {
   State<SignUpWidget> createState() => _SignUpWidgetState();
 
 }
-final formKey = GlobalKey<FormState>();
-final _emailController = TextEditingController();
-final _passwordController = TextEditingController();
-final _transcriptController = TextEditingController();
-final _standardizedController = TextEditingController();
-final _extracurricularsController = TextEditingController();
-final _collegeController = TextEditingController();
-final _careerController = TextEditingController();
-final _majorController = TextEditingController();
-final _yearController = TextEditingController();
-final _descriptionController = TextEditingController();
-final _nameController = TextEditingController();
+GlobalKey<FormState> _registerKey = GlobalKey<FormState>();
+TextEditingController _emailController = TextEditingController();
+TextEditingController _passwordController = TextEditingController();
+TextEditingController _transcriptController = TextEditingController();
+TextEditingController _standardizedController = TextEditingController();
+TextEditingController _extracurricularsController = TextEditingController();
+TextEditingController _collegeController = TextEditingController();
+TextEditingController _careerController = TextEditingController();
+TextEditingController _majorController = TextEditingController();
+TextEditingController _yearController = TextEditingController();
+TextEditingController _descriptionController = TextEditingController();
+TextEditingController _nameController = TextEditingController();
 
 class _SignUpWidgetState extends State<SignUpWidget> {
 
-  //Credit for Dropdown menu : https://blog.logrocket.com/creating-dropdown-list-flutter/
-  List<DropdownMenuItem<String>> get rolesDropdown{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(value: "Parent", child: Text("Parent")),
-      const DropdownMenuItem(value: "Mentor", child: Text("Mentor")),
-    ];
-    return menuItems;
-  }
-  String selectedItem = "Parent";
+  /*Credit for Dropdown menu:
+  Flutter. “Dropdownbutton Class Null Safety.” DropdownButton Class - Material Library - Dart API, Google, 
+    https://api.flutter.dev/flutter/material/DropdownButton-class.html.
+
+
+    Credit for textbox element:
+    Developers, Stream. “Build a Flutter Chat App: 01 - Design/UI.” YouTube, YouTube, 20 Aug. 2021, 
+      https://www.youtube.com/watch?v=vgqBc7jni8c. 
+
+    Credit for firebase connection:
+    Flutter, Backslash. “Chat App in Flutter and Firebase | Tutorial for Beginners to Advance | Android &amp; IOS (Latest).” YouTube, YouTube, 26 July 2022, 
+      https://www.youtube.com/watch?v=Qwk5oIAkgnY. 
+
+  */
+  List<String> roles = ["Parent", "Mentor"];
+  List<String> confirm = ["yes", "no"];
+  String selectedRole = "Parent";
+  String selectedAge = "no";
+  
   bool _loading = false;
   LoginServices loginService = LoginServices();
   @override
+  //prevents memory leaks by destroying widgets
   void dispose(){
     _emailController.dispose();
     _passwordController.dispose();
@@ -77,18 +89,18 @@ class _SignUpWidgetState extends State<SignUpWidget> {
       body: _loading
           ? const Center(
           child: CircularProgressIndicator(
-            color: AppColors.accent,
+            color: GradTalkColors.primary,
           )
       ) : SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Form(
-              key: formKey,
+              key: _registerKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 25),
-                  const Text("Sign in to GradTalk",
+                  const Text("Register on GradTalk",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25,
@@ -106,7 +118,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               borderRadius: BorderRadius.circular(12)
                           ),
                           focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: AppColors.accent),
+                              borderSide: const BorderSide(color: GradTalkColors.primary),
                               borderRadius: BorderRadius.circular(12)
                           ),
                           hintText: "Email"
@@ -138,7 +150,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Password",
@@ -161,7 +173,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Enter your name",
@@ -170,17 +182,24 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                     ),
 
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Select the role you want",
+                    style: TextStyle(fontSize: 17)
+                  ),
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25),
-                    child: DropdownButtonFormField<String>(
-                      value: selectedItem,
-                      onChanged: (String? newValue){
-                        setState((){
-                          selectedItem = newValue!;
-                        });
-                      },
-                      items: rolesDropdown,
+                    child: DropdownButton<String>(
+                      value: selectedRole,
+                      items: roles.map((newSelection) => DropdownMenuItem<String>(
+                          value: newSelection,
+                          child: Text(newSelection, style: TextStyle(fontSize: 18))
+                        )
+                      ).toList(),
+                      onChanged: (newSelection) => setState(() {
+                        selectedRole = newSelection as String;
+                      }),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -196,10 +215,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
-                        hintText: "FOR PARENTS ONLY. Enter your child's grades here",
+                        hintText: "Enter relevant transcript information here",
                       ),
 
                     ),
@@ -218,7 +237,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Standardized test scores",
@@ -240,7 +259,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Intended college/current college",
@@ -261,10 +280,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
-                        hintText: "Please enter your child's/your extracurriculars here",
+                        hintText: "Please enter your extracurriculars here",
                       ),
 
                     ),
@@ -282,7 +301,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Major",
@@ -303,7 +322,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Career interest",
@@ -322,7 +341,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderSide: BorderSide(color: Colors.grey),
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Graduating year from college",
@@ -343,13 +362,33 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                             borderRadius: BorderRadius.circular(12)
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.accent),
+                            borderSide: const BorderSide(color: GradTalkColors.primary),
                             borderRadius: BorderRadius.circular(12)
                         ),
                         hintText: "Please give a short introduction",
                       ),
                     ),
 
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "I confirm that I am at least 15 years old",
+                    style: TextStyle(fontSize: 17)
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: DropdownButton<String>(
+                      value: selectedAge,
+                      items: confirm.map((selection) => DropdownMenuItem<String>(
+                          value: selection,
+                          child: Text(selection, style: TextStyle(fontSize: 18))
+                        )
+                      ).toList(),
+                      onChanged: (selection) => setState(() {
+                        selectedAge = selection as String;
+                      }),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Padding(
@@ -359,7 +398,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                       child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                            color: AppColors.accent,
+                            color: GradTalkColors.primary,
                             borderRadius: BorderRadius.circular(10)
                         ),
                         child: const Center(
@@ -385,7 +424,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               text: "Log in",
                               style: const TextStyle(
                                 decoration: TextDecoration.underline,
-                                color: AppColors.accent,
+                                color: GradTalkColors.primary,
                                 fontWeight: FontWeight.bold
                               ),
                             ),
@@ -403,52 +442,110 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
 
   Future signUp() async {
-    if (formKey.currentState!.validate()) {
+    //Creates new user in the database
+
+    if (_registerKey.currentState!.validate()) {
       setState(() {
         _loading = true;
       });
-      await loginService.registerUser(
-        _nameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-        _collegeController.text.toLowerCase().trim(),
-        _careerController.text.trim(),
-        _descriptionController.text.trim(),
-        _extracurricularsController.text.trim(),
-        _majorController.text.toLowerCase().trim(),
-        selectedItem,
-        _standardizedController.text.trim(),
-        _transcriptController.text.trim(),
-        _yearController.text.trim(),
-      )
-          .then((value) async {
-        if (value == true) {
-          if (selectedItem == "Mentor") {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const Mentor()
-            ));
-          } else if (selectedItem == "Parent") {
-            Navigator.push(context, MaterialPageRoute(
+
+      if(selectedAge == "no"){
+        setState(() {
+          _loading = false;
+        });
+        return Utils.showSnackBar("You must be at least 15 years old to use GradTalk");
+      }
+      if(selectedRole == "Parent"){
+        StudentUser newStudent = StudentUser(
+          name: _nameController.text.trim(), 
+          email:  _emailController.text.trim(), 
+          college: _collegeController.text.toLowerCase().trim(), 
+          career: _careerController.text.trim(), 
+          description: _descriptionController.text.trim(), 
+          extracurriculars: _extracurricularsController.text.trim(), 
+          major: _majorController.text.toLowerCase().trim(), 
+          role: selectedRole,
+          scores: _standardizedController.text.trim(), 
+          transcript: _transcriptController.text.trim(), 
+          id: "none", 
+          year:  _yearController.text.trim(),
+          currentlyConnected: false, 
+          groupID: "none",
+          token: "", 
+          request: "none",
+        );
+        await loginService.registerStudent(_passwordController.text.trim(), newStudent).then((value) async {
+            if (value == true) {
+              clearTextFields();
+              Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const Student()
-            ));
-          } else {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const ErrorScreen()
-            ));
-            Utils.showSnackBar("Not a valid role");
-            print(selectedItem);
-          }
-        } else {
-          setState(() {
-            _loading = false;
-          });
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => const ErrorScreen()
-          ));
-          Utils.showSnackBar("Cannot retrieve data");
-          print(value);
-        }
-      });
+              ));
+            } else {
+              setState(() {
+                _loading = false;
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => const ErrorScreen()
+              ));
+              Utils.showSnackBar("Cannot retrieve data");
+              print(value);
+            }
+        });
+      }  else {
+        MentorUser newMentor = MentorUser(
+          name: _nameController.text.trim(), 
+          email:  _emailController.text.trim(), 
+          college: _collegeController.text.toLowerCase().trim(), 
+          career: _careerController.text.trim(), 
+          description: _descriptionController.text.trim(), 
+          extracurriculars: _extracurricularsController.text.trim(), 
+          major: _majorController.text.toLowerCase().trim(), 
+          role: selectedRole,
+          scores: _standardizedController.text.trim(), 
+          transcript: _transcriptController.text.trim(), 
+          id: "none", 
+          year:  _yearController.text.trim(),
+          currentlyConnected: false, 
+          groupID: "none",
+          token: "",
+          numRatings: 0,
+          rating: 0,
+          isMuted: false,
+        );
+        await loginService.registerMentor(_passwordController.text.trim(), newMentor).then((value) async {
+            if (value == true) {
+              clearTextFields();
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const Mentor()
+              ));
+            } else {
+              setState(() {
+                _loading = false;
+              });
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => const ErrorScreen()
+              ));
+              Utils.showSnackBar("Cannot retrieve data");
+              print(value);
+            }
+        });
+      }
     }
+  }
+
+
+  void clearTextFields(){
+    //clears all text from text fields
+    _emailController.clear();
+    _passwordController.clear();
+    _transcriptController.clear();
+    _standardizedController.clear();
+    _extracurricularsController.clear();
+    _collegeController.clear();
+    _careerController.clear();
+    _majorController.clear();
+    _yearController.clear();
+    _descriptionController.clear();
+    _nameController.clear();
   }
 }

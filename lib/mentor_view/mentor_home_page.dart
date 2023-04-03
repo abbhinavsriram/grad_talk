@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:grad_talk/notification_services.dart';
+import 'mentor_widgets/mentor_widgets.dart';
 
-import '../theme.dart';
-import 'mentor_widgets/mentorNavBar.dart';
 
 
-class Mentor extends StatelessWidget {
-  const Mentor({Key? key}) : super(key: key);
+class Mentor extends StatefulWidget {
+  const Mentor({super.key});
+
+  @override
+  State<Mentor> createState() => _MentorState();
+}
+
+class _MentorState extends State<Mentor> {
+  @override
+  void initState() {
+    //starts notifications
+    super.initState();
+    NotificationServices().permissionRequest();
+    NotificationServices().initialize();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+        //side bar menu
         drawer: NavBar(),
         appBar: AppBar(
           centerTitle: true,
@@ -17,8 +34,8 @@ class Mentor extends StatelessWidget {
         ),
         body: const Padding(
           padding: EdgeInsets.all(20.0),
-          child: Center(child: Text(""
-              "Welcome to GradTalk! This is a social networking application that connects you with a mentor of your choice for advice on college! Please use the menu on the top left corner to navigate through the app. Thank you!",
+          //text in the middle of the screen
+          child: Center(child: Text("Welcome to GradTalk! This is a social networking application that connects you with a mentor of your choice for advice on college! Please use the menu on the top left corner to navigate through the app. Thank you!",
             style: TextStyle(
                 fontSize: 22,
                 color: Colors.white
