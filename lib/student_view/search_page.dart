@@ -19,6 +19,11 @@ class _SearchPageState extends State<SearchPage> {
   This is the structure:
   Search bar, next to search bar there will be a dropdown where the user can choose to search major
   or a specific college. Then, accordingly the stream builder will change.
+
+  Credit for search screen:
+  code, doctor. “Build a Search System Using Flutter.” YouTube, YouTube, 25 Apr. 2022, 
+    https://www.youtube.com/watch?v=jFHSkfjN96I. 
+
    */
   String keyword = "";
   String selectedItem = "major";

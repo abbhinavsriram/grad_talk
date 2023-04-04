@@ -12,9 +12,7 @@ Mevada, Milind. “Understanding Flutter's Timer Class and Timer.periodic.” Lo
 */
 
 class TimerService {
-
-
-  int hoursConversationLimit = 60;
+  int daysConversationLimit = 5;
   Timer? timer;
   //Checks the role of the other group member
 
@@ -27,11 +25,11 @@ class TimerService {
   }
   //begins 5 day timer
   void startTimer(){
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      if(hoursConversationLimit >= 0){
-        hoursConversationLimit--;
+    Timer.periodic(Duration(days: 1), (timer) {
+      if(daysConversationLimit >= 0){
+        daysConversationLimit--;
       }
-      if(hoursConversationLimit < 0){
+      if(daysConversationLimit < 0){
         timer.cancel();
         stopTimer();
         return;
@@ -44,8 +42,7 @@ class TimerService {
     String field = await getField();
     timer?.cancel();
     DatabaseService().endConversation(field);
-    hoursConversationLimit = 60;
+    daysConversationLimit = 5;
     return;
   }
-
 }

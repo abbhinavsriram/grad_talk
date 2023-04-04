@@ -15,8 +15,6 @@ class MentorReportPage extends StatefulWidget {
   State<MentorReportPage> createState() => _MentorReportPageState();
 
 }
-final formKey = GlobalKey<FormState>();
-final _reportController = TextEditingController();
 
 
 class _MentorReportPageState extends State<MentorReportPage> {
@@ -25,6 +23,9 @@ class _MentorReportPageState extends State<MentorReportPage> {
   Fernando, Ishan. “Creating a Dropdown List in Flutter.” LogRocket Blog, Log Rocket, 27 Aug. 2021, 
     https://blog.logrocket.com/creating-dropdown-list-flutter/. 
   */
+  GlobalKey<FormState> _mentorReportKey = GlobalKey<FormState>();
+  TextEditingController _reportController = TextEditingController();
+
   bool _loading = false;
   @override
   void dispose(){
@@ -55,12 +56,12 @@ class _MentorReportPageState extends State<MentorReportPage> {
         child: Center(
           child: SingleChildScrollView(
             child: Form(
-              key: formKey,
+              key: _mentorReportKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 25),
-                  const Text("Sign in to GradTalk",
+                  const Text("Report your mentor",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25,
@@ -123,13 +124,14 @@ class _MentorReportPageState extends State<MentorReportPage> {
 
   Future newReport() async{
     //Validates report and uploads it
-    if (formKey.currentState!.validate()) {
+    if (_mentorReportKey.currentState!.validate()) {
         setState(() {
           _loading = true;
         });
     }
 
     await DatabaseService().addReport(_reportController.text.trim(), FirebaseAuth.instance.currentUser!.uid).then((value) async {
+        _reportController.clear();
         return Utils.showSnackBar("Your report has been sent");
     });
   }

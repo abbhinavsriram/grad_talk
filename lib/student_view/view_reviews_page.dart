@@ -8,8 +8,8 @@ import '../theme.dart';
 //Displays all the review that a mentor has received along with an average rating
 class ViewReviewPage extends StatefulWidget {
   final String mentorID;
-  final double average;
-  final double numRatings;
+  final num average;
+  final num numRatings;
 
   const ViewReviewPage({
     required this.mentorID,

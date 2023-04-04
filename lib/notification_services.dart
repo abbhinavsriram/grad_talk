@@ -98,15 +98,13 @@ class NotificationServices{
   }
 
   initialize(){
-    //Displays notifications to the user
+    //Displays notifications to the user for both IOS and Android settings
     var androidInitialize = const AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosInitialize = const IOSInitializationSettings();
     var bothInitializations = InitializationSettings(android: androidInitialize, iOS: iosInitialize);
     flutterLocalNotificationsPlugin.initialize(bothInitializations, onSelectNotification: (String? payload) async {
       return;
     });
-
-
     FirebaseMessaging.onMessage.listen((RemoteMessage newMessage) async {
       BigTextStyleInformation bigTextStyleInformation = BigTextStyleInformation(
         newMessage.notification!.body.toString(), 

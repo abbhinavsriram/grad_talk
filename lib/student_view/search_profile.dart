@@ -18,8 +18,8 @@ class SearchProfile extends StatelessWidget {
   final String scores;
   final String transcript;
   final String year;
-  final double rating;
-  final double numReviews;
+  final num rating;
+  final num numReviews;
 
   const SearchProfile({
     Key? key,
